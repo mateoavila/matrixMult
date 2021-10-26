@@ -1,42 +1,48 @@
 package matrixMult;
 
-import java.util.Arrays;
-
 public class DivideAndConquer {
 	
-	public static int[][] mulitply(int[][] matrix1, int[][] matrix2, int rowA, int colA, int rowB, int colB, int n) {
-		int[][] matrix3 = new int[n][n];
+	public static int[][] mulitply(int[][] matrix1, int[][] matrix2, int rowM1, int colM1, int rowM2, int colM2, int size) {
+		
+		int[][] resultMatrix = new int[size][size];
 
-		if (n == 1) {
-			matrix3[0][0] = matrix1[rowA][colA] * matrix2[rowB][colB];
+		if (size == 1) {
+			resultMatrix[0][0] = matrix1[rowM1][colM1] * matrix2[rowM2][colM2];
 		} else {
-			int newSize = n / 2;
-			// C11 = A11 * B11 + A12 * B21
-			add(matrix3, mulitply(matrix1, matrix2, rowA, colA, rowB, colB, newSize), // A11*B11
-					mulitply(matrix1, matrix2, rowA, colA + newSize, rowB + newSize, colB, newSize), // A12*B21
-					0, 0);// C11
-			// C12 = A11 * B12 + A12 * B22
-			add(matrix3, mulitply(matrix1, matrix2, rowA, colA, rowB, colB + newSize, newSize), // A11*B12
-					mulitply(matrix1, matrix2, rowA, colA + newSize, rowB + newSize, colB + newSize, newSize), // A12*B22
-					0, newSize);// C12
-			// C21 = A21 * B11 + A22 * B21
-			add(matrix3, mulitply(matrix1, matrix2, rowA + newSize, colA, rowB, colB, newSize), // A21*B11
-					mulitply(matrix1, matrix2, rowA + newSize, colA + newSize, rowB + newSize, colB, newSize), // A22*B21
-					newSize, 0);// C21
-			// C22 = A21 * B12 + A22 * B22
-			add(matrix3, mulitply(matrix1, matrix2, rowA + newSize, colA, rowB, colB + newSize, newSize), // A21*B12
-					mulitply(matrix1, matrix2, rowA + newSize, colA + newSize, rowB + newSize, colB + newSize, newSize), // A22*B22
-					newSize, newSize);// C22
+			int newSize = size / 2;
+			
+			// matrix1 = A
+			// matrix2 = B
+			
+			// RM11 = 11xB11 + A12xB21
+			int [][] A11xB11 = mulitply(matrix1, matrix2, rowM1, colM1, rowM2, colM2, newSize);
+			int [][] A12xB21 = mulitply(matrix1, matrix2, rowM1, colM1 + newSize, rowM2 + newSize, colM2, newSize);
+			add(resultMatrix, A11xB11, A12xB21,	0, 0); //RM11
+			
+			// RM12 = A11xB12 + A12xB22
+			int [][] A11xB12 = mulitply(matrix1, matrix2, rowM1, colM1, rowM2, colM2 + newSize, newSize);
+			int [][] A12xB22 = mulitply(matrix1, matrix2, rowM1, colM1 + newSize, rowM2 + newSize, colM2 + newSize, newSize);
+			add(resultMatrix, A11xB12, A12xB22,	0, newSize);// RM12
+			
+			// RM21 = A21xB11 + A22xB21
+			int [][] A21xB11 = mulitply(matrix1, matrix2, rowM1 + newSize, colM1, rowM2, colM2, newSize);
+			int [][] A22xB21 = mulitply(matrix1, matrix2, rowM1 + newSize, colM1 + newSize, rowM2 + newSize, colM2, newSize);
+			add(resultMatrix, A21xB11, A22xB21, newSize, 0);// RM21
+			
+			// RM22 = A21xB12 + A22xB22
+			int [][] A21xB12 = mulitply(matrix1, matrix2, rowM1 + newSize, colM1, rowM2, colM2 + newSize, newSize);
+			int [][] A22xB22 = mulitply(matrix1, matrix2, rowM1 + newSize, colM1 + newSize, rowM2 + newSize, colM2 + newSize, newSize);
+			add(resultMatrix, A21xB12, A22xB22, newSize, newSize);// RM22
 		}
-		return matrix3;
+		return resultMatrix;
 	}
 
 
-	private static void add(int[][] matrix3, int[][] matrix1, int[][] matrix2, int rowM3, int colM3) {
-		int n = matrix1.length;
-		for (int i = 0; i < n; i++) {
-			for (int j = 0; j < n; j++) {
-				matrix3[i + rowM3][j + colM3] = matrix1[i][j] + matrix2[i][j];
+	private static void add(int[][] resultMatrix, int[][] matrix1, int[][] matrix2, int rowRM, int colRM) {
+		int size = matrix1.length;
+		for (int i = 0; i < size; i++) {
+			for (int j = 0; j < size; j++) {
+				resultMatrix[i + rowRM][j + colRM] = matrix1[i][j] + matrix2[i][j];
 			}
 		}
 	}
