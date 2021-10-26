@@ -1,139 +1,113 @@
 package matrixMult;
 
-import java.util.Arrays;
-
 public class Strassen {
-	public static int[][] run(int[][] matrix1, int[][] matrix2) {
-		
-			int n = matrix1.length;
-			
-	        int[][] res = new int[n][n];
-
-	        // if the input matrix is 1x1
-	        if (n == 1) {
-	            res[0][0] = matrix1[0][0] * matrix2[0][0];
-	        } else {
-
-	            // first matrix
-	            int[][] a = new int[n / 2][n / 2];
-	            int[][] b = new int[n / 2][n / 2];
-	            int[][] c = new int[n / 2][n / 2];
-	            int[][] d = new int[n / 2][n / 2];
-	            
-	            // second matrix
-	            int[][] e = new int[n / 2][n / 2];
-	            int[][] f = new int[n / 2][n / 2];
-	            int[][] g = new int[n / 2][n / 2];
-	            int[][] h = new int[n / 2][n / 2];
-
-	            // dividing matrix A into 4 parts
-	            divideArray(matrix1, a, 0, 0);
-	            divideArray(matrix1, b, 0, n / 2);
-	            divideArray(matrix1, c, n / 2, 0);
-	            divideArray(matrix1, d, n / 2, n / 2);
-
-	            // dividing matrix B into 4 parts
-	            divideArray(matrix2, e, 0, 0);
-	            divideArray(matrix2, f, 0, n / 2);
-	            divideArray(matrix2, g, n / 2, 0);
-	            divideArray(matrix2, h, n / 2, n / 2);
-	            
-	            /** 
-	              p1 = (a + d)(e + h)
-	              p2 = (c + d)e
-	              p3 = a(f - h)
-	              p4 = d(g - e)
-	              p5 = (a + b)h
-	              p6 = (c - a) (e + f)
-	              p7 = (b - d) (g + h)
-	            **/
-	           
-	            int[][] p1 = run(addMatrices(a, d), addMatrices(e, h));
-	            int[][] p2 = run(addMatrices(c,d),e);
-	            int[][] p3 = run(a, subMatrices(f, h));           
-	            int[][] p4 = run(d, subMatrices(g, e));
-	            int[][] p5 = run(addMatrices(a,b), h );
-	            int[][] p6 = run(subMatrices(c, a), addMatrices(e, f));
-	            int[][] p7 = run(subMatrices(b, d), addMatrices(g, h));
-
-	            
-	           /**
-	              C11 = p1 + p4 - p5 + p7
-	              C12 = p3 + p5
-	              C21 = p2 + p4
-	              C22 = p1 - p2 + p3 + p6
-	            **/
-	           
-	            int[][] C11 = addMatrices(subMatrices(addMatrices(p1, p4), p5), p7);
-	            int[][] C12 = addMatrices(p3, p5);
-	            int[][] C21 = addMatrices(p2, p4);
-	            int[][] C22 = addMatrices(subMatrices(addMatrices(p1, p3), p2), p6);
-
-	            // adding all sub array back into one
-	            copySubArray(C11, res, 0, 0);
-	            copySubArray(C12, res, 0, n / 2);
-	            copySubArray(C21, res, n / 2, 0);
-	            copySubArray(C22, res, n / 2, n / 2);
-	        }
-	        return res;
-	    }
-	    
-	    
-	    // Adding 2 matrices
-	    public static int[][] addMatrices(int[][] a, int[][] b) {
-	        int n = a.length;
-	        int[][] res = new int[n][n];
-	        for (int i = 0; i < n; i++) {
-	            for (int j = 0; j < n; j++) {
-	                res[i][j] = a[i][j] + b[i][j];
-	            }
-	        }
-	        return res;
-	    }
-
-	    // Subtracting 2 matrices
-	    public static int[][] subMatrices(int[][] a, int[][] b) {
-	        int n = a.length;
-	        int[][] res = new int[n][n];
-	        for (int i = 0; i < n; i++) {
-	            for (int j = 0; j < n; j++) {
-	                res[i][j] = a[i][j] - b[i][j];
-	            }
-	        }
-	        return res;
-	    }
-
-	    // print matrix
-	    public static void printMatrix(int[][] a) {
-	        int n = a.length;
-	        System.out.println("Resultant Matrix ");
-	        for (int i = 0; i < n; i++) {
-	            for (int j = 0; j < n; j++) {
-	                System.out.print(a[i][j] + "\t");
-	            }
-	            System.out.println();
-	        }
-	        System.out.println();
-	    }
-	    
-	    // divides array
-	    public static void divideArray(int[][] P, int[][] C, int iB, int jB) 
-	    {
-	        for(int i1 = 0, i2 = iB; i1 < C.length; i1++, i2++)
-	            for(int j1 = 0, j2 = jB; j1 < C.length; j1++, j2++)
-	                C[i1][j1] = P[i2][j2];
-	    }
-
-	    // copies
-	    public static void copySubArray(int[][] C, int[][] P, int iB, int jB) 
-	    {
-	        for(int i1 = 0, i2 = iB; i1 < C.length; i1++, i2++)
-	            for(int j1 = 0, j2 = jB; j1 < C.length; j1++, j2++)
-	                P[i2][j2] = C[i1][j1];
-	    }  
-	    
-
-		
-		
+	public static int[][] mulitply(int[][] matrix1, int[][] matrix2, int n) {
+		int[][] matrix3 = new int[n][n];
+		strassen(matrix1, matrix2, matrix3, n);
+		return matrix3;
 	}
+
+	public static void strassen(int[][] matrix1, int[][] matrix2, int[][] matrix3, int n) {
+
+		if (n == 2) {
+			matrix3[0][0] = (matrix1[0][0] * matrix2[0][0]) + (matrix1[0][1] * matrix2[1][0]);
+			matrix3[0][1] = (matrix1[0][0] * matrix2[0][1]) + (matrix1[0][1] * matrix2[1][1]);
+			matrix3[1][0] = (matrix1[1][0] * matrix2[0][0]) + (matrix1[1][1] * matrix2[1][0]);
+			matrix3[1][1] = (matrix1[1][0] * matrix2[0][1]) + (matrix1[1][1] * matrix2[1][1]);
+		} else {
+			int[][] A11 = new int[n / 2][n / 2];
+			int[][] A12 = new int[n / 2][n / 2];
+			int[][] A21 = new int[n / 2][n / 2];
+			int[][] A22 = new int[n / 2][n / 2];
+			int[][] B11 = new int[n / 2][n / 2];
+			int[][] B12 = new int[n / 2][n / 2];
+			int[][] B21 = new int[n / 2][n / 2];
+			int[][] B22 = new int[n / 2][n / 2];
+
+			int[][] P = new int[n / 2][n / 2];
+			int[][] Q = new int[n / 2][n / 2];
+			int[][] R = new int[n / 2][n / 2];
+			int[][] S = new int[n / 2][n / 2];
+			int[][] T = new int[n / 2][n / 2];
+			int[][] U = new int[n / 2][n / 2];
+			int[][] V = new int[n / 2][n / 2];
+
+			deconstructMatrix(matrix1, A11, 0, 0);
+			deconstructMatrix(matrix1, A12, 0, n / 2);
+			deconstructMatrix(matrix1, A21, n / 2, 0);
+			deconstructMatrix(matrix1, A22, n / 2, n / 2);
+			deconstructMatrix(matrix2, B11, 0, 0);
+			deconstructMatrix(matrix2, B12, 0, n / 2);
+			deconstructMatrix(matrix2, B21, n / 2, 0);
+			deconstructMatrix(matrix2, B22, n / 2, n / 2);
+
+			strassen(add(A11, A22, n / 2), add(B11, B22, n / 2), P, n / 2);
+			strassen(add(A21, A22, n / 2), B11, Q, n / 2);
+			strassen(A11, subtract(B12, B22, n / 2), R, n / 2);
+			strassen(A22, subtract(B21, B11, n / 2), S, n / 2);
+			strassen(add(A11, A12, n / 2), B22, T, n / 2);
+			strassen(subtract(A21, A11, n / 2), add(B11, B12, n / 2), U, n / 2);
+			strassen(subtract(A12, A22, n / 2), add(B21, B22, n / 2), V, n / 2);
+
+			int[][] C11 = add(subtract(add(P, S, P.length), T, T.length), V, V.length);
+			int[][] C12 = add(R, T, R.length);
+			int[][] C21 = add(Q, S, Q.length);
+			int[][] C22 = add(subtract(add(P, R, P.length), Q, Q.length), U, U.length);
+
+			constructMatrix(C11, matrix3, 0, 0);
+			constructMatrix(C12, matrix3, 0, n / 2);
+			constructMatrix(C21, matrix3, n / 2, 0);
+			constructMatrix(C22, matrix3, n / 2, n / 2);
+		}
+	}
+
+	
+
+	private static int[][] add(int[][] matrix1, int[][] matrix2, int n) {
+
+		int[][] matrix3 = new int[n][n];
+
+		for (int i = 0; i < n; i++) {
+			for (int j = 0; j < n; j++) {
+				matrix3[i][j] = matrix1[i][j] + matrix2[i][j];
+			}
+		}
+		return matrix3;
+	}
+
+	private static int[][] subtract(int[][] matrix1, int[][] matrix2, int n) {
+
+		int[][] matrix3 = new int[n][n];
+
+		for (int i = 0; i < n; i++) {
+			for (int j = 0; j < n; j++) {
+				matrix3[i][j] = matrix1[i][j] - matrix2[i][j];
+			}
+		}
+		return matrix3;
+	}
+	private static void constructMatrix(int[][] initialMatrix, int[][] newMatrix, int a, int b) {
+
+		int y = b;
+
+		for (int i = 0; i < initialMatrix.length; i++) {
+			for (int j = 0; j < initialMatrix.length; j++) {
+				newMatrix[a][y++] = initialMatrix[i][j];
+			}
+			y = b;
+			a++;
+		}
+	}
+	private static void deconstructMatrix(int[][] initialMatrix, int[][] newMatrix, int a, int b) {
+
+		int y = b;
+		for (int i = 0; i < newMatrix.length; i++) {
+			for (int j = 0; j < newMatrix.length; j++) {
+				newMatrix[i][j] = initialMatrix[a][y++];
+			}
+			y = b;
+			a++;
+		}
+	}
+
 }
