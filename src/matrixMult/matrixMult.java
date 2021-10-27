@@ -14,12 +14,15 @@ public class matrixMult {
 		long start;
 		long end;
 
-		int dataSets = 100; // how many nxn matrixes will be made
-		int e = 8; // highest exponent of 2 to go to
+		int dataSets = 200; // how many nxn matrixes will be made
+		int e = 9; // highest exponent of 2 to go to
 		int loop = 10; //how many times each matrix will be ran
 		
 		Random rand = new Random();
+		
+		title("size", "Classic", "Divide and Conquer", "Strassen", filepath);
 
+		
 		// increases the exponent from 1 to desired number
 		for (int exponent = 1; exponent <= e; exponent++) {
 
@@ -98,7 +101,7 @@ public class matrixMult {
 			System.out.println("Divide and Conquer Mult average: " + dacAvg + " nanoseconds");
 			System.out.println("Strassen Mult average: 		 " + sAvg + " nanoseconds\n\n");
 			
-			saveRecord((size + "x" + size).toString(), cAvg, dacAvg, sAvg, filepath);
+			saveRecord(size, cAvg, dacAvg, sAvg, filepath);
 			
 		}
 
@@ -108,7 +111,24 @@ public class matrixMult {
 	
 	
 	
-	public static void saveRecord(String matrixSize, long cAvg, long dacAvg, long sAvg, String filepath) {
+	public static void saveRecord(int matrixSize, long cAvg, long dacAvg, long sAvg, String filepath) {
+		
+		try {
+			FileWriter fw = new FileWriter(filepath, true);
+			BufferedWriter bw = new BufferedWriter(fw);
+			PrintWriter pw = new PrintWriter(bw);
+			
+			pw.println(matrixSize + "," + cAvg + "," +  dacAvg + "," + sAvg);
+			pw.flush();
+			pw.close();
+			
+		}catch(Exception E){
+			
+		}
+		
+	}
+	
+public static void title(String matrixSize, String cAvg, String dacAvg, String sAvg, String filepath) {
 		
 		try {
 			FileWriter fw = new FileWriter(filepath, true);

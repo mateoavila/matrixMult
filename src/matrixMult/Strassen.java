@@ -19,51 +19,73 @@ public class Strassen {
 			//matrix1 = A
 			//matrix2 = B
 			
-			int[][] A11 = new int[size / 2][size / 2];
-			int[][] A12 = new int[size / 2][size / 2];
-			int[][] A21 = new int[size / 2][size / 2];
-			int[][] A22 = new int[size / 2][size / 2];
-			int[][] B11 = new int[size / 2][size / 2];
-			int[][] B12 = new int[size / 2][size / 2];
-			int[][] B21 = new int[size / 2][size / 2];
-			int[][] B22 = new int[size / 2][size / 2];
+			//create an nxn matrix half the size of the last matrix
+			int halfSize = size/2;
+			
+			int[][] A11 = new int[halfSize][halfSize];
+			int[][] A12 = new int[halfSize][halfSize];
+			int[][] A21 = new int[halfSize][halfSize];
+			int[][] A22 = new int[halfSize][halfSize];
+			int[][] B11 = new int[halfSize][halfSize];
+			int[][] B12 = new int[halfSize][halfSize];
+			int[][] B21 = new int[halfSize][halfSize];
+			int[][] B22 = new int[halfSize][halfSize];
 
-			int[][] C = new int[size / 2][size / 2];
-			int[][] D = new int[size / 2][size / 2];
-			int[][] E = new int[size / 2][size / 2];
-			int[][] F = new int[size / 2][size / 2];
-			int[][] G = new int[size / 2][size / 2];
-			int[][] H = new int[size / 2][size / 2];
-			int[][] I = new int[size / 2][size / 2];
+			int[][] P = new int[halfSize][halfSize];
+			int[][] Q = new int[halfSize][halfSize];
+			int[][] R = new int[halfSize][halfSize];
+			int[][] S = new int[halfSize][halfSize];
+			int[][] T = new int[halfSize][halfSize];
+			int[][] U = new int[halfSize][halfSize];
+			int[][] V = new int[halfSize][halfSize];
 
-			deconstructMatrix(matrix1, A11, 0, 0);
-			deconstructMatrix(matrix1, A12, 0, size / 2);
-			deconstructMatrix(matrix1, A21, size / 2, 0);
-			deconstructMatrix(matrix1, A22, size / 2, size / 2);
-			deconstructMatrix(matrix2, B11, 0, 0);
-			deconstructMatrix(matrix2, B12, 0, size / 2);
-			deconstructMatrix(matrix2, B21, size / 2, 0);
-			deconstructMatrix(matrix2, B22, size / 2, size / 2);
+			tearDown(matrix1, A11, 0, 0);
+			tearDown(matrix1, A12, 0, halfSize);
+			tearDown(matrix1, A21, halfSize, 0);
+			tearDown(matrix1, A22, halfSize, halfSize);
+			tearDown(matrix2, B11, 0, 0);
+			tearDown(matrix2, B12, 0, halfSize);
+			tearDown(matrix2, B21, halfSize, 0);
+			tearDown(matrix2, B22, halfSize, halfSize);
 
 			
+			// Run strassen recursively for each matrix  P - V
 			
-			strassen(add(A11, A22, size / 2), add(B11, B22, size / 2), C, size / 2);
-			strassen(add(A21, A22, size / 2), B11, D, size / 2);
-			strassen(A11, subtract(B12, B22, size / 2), E, size / 2);
-			strassen(A22, subtract(B21, B11, size / 2), F, size / 2);
-			strassen(add(A11, A12, size / 2), B22, G, size / 2);
-			strassen(subtract(A21, A11, size / 2), add(B11, B12, size / 2), H, size / 2);
-			strassen(subtract(A12, A22, size / 2), add(B21, B22, size / 2), I, size / 2);
+			int [][] A11addA22 = add(A11, A22, halfSize);
+			int [][] B11addB22 = add(B11, B22, halfSize);
+			strassen(A11addA22, B11addB22, P, halfSize);
+			
+			int [][] A21addA22 = add(A21, A22, halfSize);
+			strassen(A21addA22, B11, Q, halfSize);
+			
+			int [][] B12subB22 = subtract(B12, B22, halfSize);
+			strassen(A11, B12subB22, R, halfSize);
+			
+			int [][] B21subB11 = subtract(B21, B11, halfSize);
+			strassen(A22, B21subB11, S, halfSize);
+			
+			int [][] A11addA12 = add(A11, A12, halfSize);
+			strassen(A11addA12, B22, T, halfSize);
+			
+			int [][] A21subA11 = subtract(A21, A11, halfSize);
+			int [][] B11addB12 = add(B11, B12, halfSize);
+			strassen(A21subA11, B11addB12, U, halfSize);
+			
+			int [][] A12subA22 = subtract(A12, A22, halfSize);
+			int [][] B21addB22 = add(B21, B22, halfSize);
+			strassen(A12subA22, B21addB22 , V, halfSize);
 
-			int[][] C11 = add(subtract(add(C, F, C.length), G, G.length), I, I.length);
-			int[][] C12 = add(E, G, E.length);
-			int[][] C21 = add(D, F, D.length);
-			int[][] C22 = add(subtract(add(C, E, C.length), D, D.length), H, H.length);
+			int[][] PaddS = add(P, S, P.length);
+			int[][] C11 = add(subtract(PaddS, T, T.length), V, V.length);
+			int[][] C12 = add(R, T, R.length);
+			int[][] C21 = add(Q, S, Q.length);
+			int[][] PaddR = add(P, R, P.length);
+			int[][] C22 = add(subtract(PaddR, Q, Q.length), U, U.length);
 
-			constructMatrix(C11, resultMatrix, 0, 0);
-			constructMatrix(C12, resultMatrix, 0, size / 2);
-			constructMatrix(C21, resultMatrix, size / 2, 0);
-			constructMatrix(C22, resultMatrix, size / 2, size / 2);
+			build(C11, resultMatrix, 0, 0);
+			build(C12, resultMatrix, 0, halfSize);
+			build(C21, resultMatrix, halfSize, 0);
+			build(C22, resultMatrix, halfSize, halfSize);
 		}
 	}
 
@@ -92,7 +114,7 @@ public class Strassen {
 		}
 		return resultMatrix;
 	}
-	private static void constructMatrix(int[][] initialMatrix, int[][] newMatrix, int a, int b) {
+	private static void build(int[][] initialMatrix, int[][] newMatrix, int a, int b) {
 
 		int y = b;
 
@@ -104,7 +126,7 @@ public class Strassen {
 			a++;
 		}
 	}
-	private static void deconstructMatrix(int[][] initialMatrix, int[][] newMatrix, int a, int b) {
+	private static void tearDown(int[][] initialMatrix, int[][] newMatrix, int a, int b) {
 
 		int y = b;
 		for (int i = 0; i < newMatrix.length; i++) {
