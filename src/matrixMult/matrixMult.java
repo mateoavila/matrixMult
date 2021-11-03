@@ -24,10 +24,14 @@ public class matrixMult {
 		long dacAvg;
 		long sAvg;
 		
+		
+		//if you want to make adjustments to how long the code will run for 
+		//do it with these three variables
 		int dataSets = 200; // how many nxn matrixes will be made
 		int e = 9; // highest exponent of 2 to go to
 		int loop = 10; // how many times each matrix will be ran
 
+		
 		Random rand = new Random();
 
 		title("size", "Classic", "Divide and Conquer", "Strassen", filepath);
